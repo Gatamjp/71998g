@@ -1,10 +1,8 @@
--- Create the database if it doesn't exist
+
 CREATE DATABASE IF NOT EXISTS Student;
 
--- Use the created database
 USE Student;
 
--- Create the Student table
 CREATE TABLE IF NOT EXISTS Student (
     RuleNumber INT AUTO_INCREMENT,
     Name VARCHAR(255) NOT NULL,
