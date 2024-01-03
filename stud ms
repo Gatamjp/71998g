@@ -1,0 +1,170 @@
+@Entity
+public class Student {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private Integer rollNumber;
+    private String name;
+    private Integer yearOfJoining;
+    private String email;
+    private String city;
+    
+    // getters and setters
+}
+
+
+public class StudentDTO {
+    private Long id;
+    private Integer rollNumber;
+    private String name;
+    private Integer yearOfJoining;
+    private String email;
+    private String city;
+    
+    // getters and setters
+}
+
+
+
+public interface StudentRepository extends JpaRepository<Student, Long> {
+    Student findByRollNumber(Integer rollNumber);
+    Student findByEmail(String email);
+}
+
+
+
+
+public interface StudentService {
+    StudentDTO getStudentByRollNumber(Integer rollNumber);
+    StudentDTO getStudentByEmail(String email);
+    StudentDTO addStudent(StudentDTO studentDTO);
+    void deleteStudentById(Long studentId);
+    StudentDTO updateStudentCity(Long studentId, String city);
+    // other methods...
+}
+
+@Service
+public class StudentServiceImpl implements StudentService {
+    @Autowired
+    private StudentRepository studentRepository;
+    
+    // implement methods from StudentService interface
+}
+@Service
+public class StudentServiceImpl implements StudentService {
+
+    @Autowired
+    private StudentRepository studentRepository;
+
+    @Override
+    public StudentDTO getStudentByRollNumber(Integer rollNumber) {
+        Student student = studentRepository.findByRollNumber(rollNumber);
+        if (student == null) {
+            throw new NoSuchElementException("Student not found with roll number: " + rollNumber);
+        }
+        return convertToDTO(student);
+    }
+
+    @Override
+    public StudentDTO getStudentByEmail(String email) {
+        Student student = studentRepository.findByEmail(email);
+        if (student == null) {
+            throw new NoSuchElementException("Student not found with email: " + email);
+        }
+        return convertToDTO(student);
+    }
+
+    @Override
+    public StudentDTO addStudent(StudentDTO studentDTO) {
+        Student student = convertToEntity(studentDTO);
+        Student savedStudent = studentRepository.save(student);
+        return convertToDTO(savedStudent);
+    }
+
+    @Override
+    public void deleteStudentById(Long studentId) {
+        studentRepository.deleteById(studentId);
+    }
+
+    @Override
+    public StudentDTO updateStudentCity(Long studentId, String city) {
+        Optional<Student> optionalStudent = studentRepository.findById(studentId);
+        if (optionalStudent.isPresent()) {
+            Student student = optionalStudent.get();
+            student.setCity(city);
+            studentRepository.save(student);
+            return convertToDTO(student);
+        } else {
+            throw new NoSuchElementException("Student not found with ID: " + studentId);
+        }
+    }
+
+    // Other methods and helper functions...
+
+    // Helper method to convert Entity to DTO
+    private StudentDTO convertToDTO(Student student) {
+        StudentDTO studentDTO = new StudentDTO();
+        studentDTO.setId(student.getId());
+        studentDTO.setRollNumber(student.getRollNumber());
+        studentDTO.setName(student.getName());
+        studentDTO.setYearOfJoining(student.getYearOfJoining());
+        studentDTO.setEmail(student.getEmail());
+        studentDTO.setCity(student.getCity());
+        return studentDTO;
+    }
+
+    // Helper method to convert DTO to Entity
+    private Student convertToEntity(StudentDTO studentDTO) {
+        Student student = new Student();
+        student.setRollNumber(studentDTO.getRollNumber());
+        student.setName(studentDTO.getName());
+        student.setYearOfJoining(studentDTO.getYearOfJoining());
+        student.setEmail(studentDTO.getEmail());
+        student.setCity(studentDTO.getCity());
+        return student;
+    }
+}
+
+@RestController
+@RequestMapping("/students")
+public class StudentController {
+    @Autowired
+    private StudentService studentService;
+
+    @GetMapping("/byRollNumber")
+    public ResponseEntity<StudentDTO> getStudentByRollNumber(@RequestParam Integer rollNumber) {
+        StudentDTO student = studentService.getStudentByRollNumber(rollNumber);
+        return ResponseEntity.ok(student);
+    }
+
+    @GetMapping("/byEmail")
+    public ResponseEntity<StudentDTO> getStudentByEmail(@RequestParam String email) {
+        StudentDTO student = studentService.getStudentByEmail(email);
+        return ResponseEntity.ok(student);
+    }
+
+    @PostMapping
+    public ResponseEntity<StudentDTO> addStudent(@RequestBody StudentDTO studentDTO) {
+        StudentDTO newStudent = studentService.addStudent(studentDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newStudent);
+    }
+
+    @DeleteMapping("/{studentId}")
+    public ResponseEntity<String> deleteStudentById(@PathVariable Long studentId) {
+        studentService.deleteStudentById(studentId);
+        return ResponseEntity.ok("Student with ID " + studentId + " deleted successfully");
+    }
+
+    @PatchMapping("/{studentId}")
+    public ResponseEntity<StudentDTO> updateStudentCity(@PathVariable Long studentId, @RequestParam String city) {
+        StudentDTO updatedStudent = studentService.updateStudentCity(studentId, city);
+        return ResponseEntity.ok(updatedStudent);
+    }
+
+    // Other endpoints for student CRUD operations...
+}
+
+
+
+
