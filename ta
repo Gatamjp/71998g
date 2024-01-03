@@ -4,10 +4,10 @@ CREATE DATABASE IF NOT EXISTS Student;
 USE Student;
 
 CREATE TABLE IF NOT EXISTS Student (
-    RuleNumber INT AUTO_INCREMENT,
+    RollNumber INT AUTO_INCREMENT,
     Name VARCHAR(255) NOT NULL,
     YearOfJoining INT NOT NULL,
     Email VARCHAR(255) UNIQUE NOT NULL,
     City VARCHAR(255) NOT NULL,
-    PRIMARY KEY (RuleNumber)
+    PRIMARY KEY (RollNumber)
 );
