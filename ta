@@ -1,16 +1,8 @@
 
-CREATE DATABASE IF NOT EXISTS Student;
+CREATE DATABASE IF NOT EXISTS student-service;
 
-USE Student;
+USE student-service;
 
-CREATE TABLE IF NOT EXISTS Student (
-    RollNumber INT AUTO_INCREMENT,
-    Name VARCHAR(255) NOT NULL,
-    YearOfJoining INT NOT NULL,
-    Email VARCHAR(255) UNIQUE NOT NULL,
-    City VARCHAR(255) NOT NULL,
-    PRIMARY KEY (RollNumber)
-);
 CREATE TABLE IF NOT EXISTS Student (
     id INT AUTO_INCREMENT PRIMARY KEY,
     rollNumber INT NOT NULL,
