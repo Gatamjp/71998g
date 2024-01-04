@@ -1,7 +1,7 @@
 
-CREATE DATABASE IF NOT EXISTS student-service;
+CREATE DATABASE IF NOT EXISTS studentservice;
 
-USE student-service;
+USE studentservice;
 
 CREATE TABLE IF NOT EXISTS Student (
     id INT AUTO_INCREMENT PRIMARY KEY,
