@@ -1,0 +1,96 @@
+import javax.persistence.*;
+
+@Entity
+public class Course {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String courseId;
+    private String courseName;
+
+    // Constructors, getters, setters...
+}
+
+public class CourseDTO {
+
+    private Long id;
+    private String courseId;
+    private String courseName;
+
+    // Constructors, getters, setters...
+}
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface CourseRepository extends JpaRepository<Course, Long> {
+    Course findByCourseId(String courseId);
+}
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.NoSuchElementException;
+
+@Service
+public class CourseService {
+
+    @Autowired
+    private CourseRepository courseRepository;
+
+    public List<CourseDTO> getAllCourses() {
+        List<Course> courses = courseRepository.findAll();
+        return convertToDTOList(courses);
+    }
+
+    public CourseDTO getCourseById(Long courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new NoSuchElementException("Course not found with ID: " + courseId));
+        return convertToDTO(course);
+    }
+
+    private List<CourseDTO> convertToDTOList(List<Course> courses) {
+        // Convert List of Course entities to List of CourseDTOs
+    }
+
+    private CourseDTO convertToDTO(Course course) {
+        CourseDTO courseDTO = new CourseDTO();
+        courseDTO.setId(course.getId());
+        courseDTO.setCourseId(course.getCourseId());
+        courseDTO.setCourseName(course.getCourseName());
+        return courseDTO;
+    }
+}
+
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/courses")
+public class CourseController {
+
+    @Autowired
+    private CourseService courseService;
+
+    @GetMapping
+    public ResponseEntity<List<CourseDTO>> getAllCourses() {
+        List<CourseDTO> courses = courseService.getAllCourses();
+        return ResponseEntity.ok(courses);
+    }
+
+    @GetMapping("/{courseId}")
+    public ResponseEntity<CourseDTO> getCourseById(@PathVariable Long courseId) {
+        CourseDTO course = courseService.getCourseById(courseId);
+        return ResponseEntity.ok(course);
+    }
+}
+
+
