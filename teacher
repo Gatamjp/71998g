@@ -1,0 +1,104 @@
+import javax.persistence.*;
+
+@Entity
+public class Teacher {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+    private String email;
+
+    // Constructors, getters, setters...
+}
+
+
+public class TeacherDTO {
+
+    private Long id;
+    private String name;
+    private String email;
+
+    // Constructors, getters, setters...
+}
+
+
+
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface TeacherRepository extends JpaRepository<Teacher, Long> {
+    Teacher findByEmail(String email);
+}
+
+
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.NoSuchElementException;
+
+@Service
+public class TeacherService {
+
+    @Autowired
+    private TeacherRepository teacherRepository;
+
+    public TeacherDTO getTeacherByEmail(String email) {
+        Teacher teacher = teacherRepository.findByEmail(email);
+        if (teacher == null) {
+            throw new NoSuchElementException("Teacher not found with email: " + email);
+        }
+        return convertToDTO(teacher);
+    }
+
+    public TeacherDTO addTeacher(TeacherDTO teacherDTO) {
+        Teacher teacher = convertToEntity(teacherDTO);
+        Teacher savedTeacher = teacherRepository.save(teacher);
+        return convertToDTO(savedTeacher);
+    }
+
+    private TeacherDTO convertToDTO(Teacher teacher) {
+        TeacherDTO teacherDTO = new TeacherDTO();
+        teacherDTO.setId(teacher.getId());
+        teacherDTO.setName(teacher.getName());
+        teacherDTO.setEmail(teacher.getEmail());
+        return teacherDTO;
+    }
+
+    private Teacher convertToEntity(TeacherDTO teacherDTO) {
+        Teacher teacher = new Teacher();
+        teacher.setName(teacherDTO.getName());
+        teacher.setEmail(teacherDTO.getEmail());
+        return teacher;
+    }
+}
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/teachers")
+public class TeacherController {
+
+    @Autowired
+    private TeacherService teacherService;
+
+    @GetMapping("/byEmail")
+    public ResponseEntity<TeacherDTO> getTeacherByEmail(@RequestParam String email) {
+        TeacherDTO teacher = teacherService.getTeacherByEmail(email);
+        return ResponseEntity.ok(teacher);
+    }
+
+    @PostMapping
+    public ResponseEntity<TeacherDTO> addTeacher(@RequestBody TeacherDTO teacherDTO) {
+        TeacherDTO addedTeacher = teacherService.addTeacher(teacherDTO);
+        return ResponseEntity.ok(addedTeacher);
+    }
+}
+
+
