@@ -93,4 +93,12 @@ public class CourseController {
     }
 }
 
+CREATE TABLE courses (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    course_id VARCHAR(50) NOT NULL,
+    course_name VARCHAR(100) NOT NULL
+);
+
+INSERT INTO courses (course_id, course_name)
+VALUES ('C001', 'Introduction to Programming');
 
